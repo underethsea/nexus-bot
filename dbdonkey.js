@@ -2,7 +2,7 @@
 const dotenv = require("dotenv");
 dotenv.config();
 const pgp = require("pg-promise")(/* initialization options */);
-
+const { GetNftsHeld } = require("./getNftsHeld")
 // dbdonkey ------------------------------------------->>>>>>>>>>> DM COVER ALERTS
 
 
@@ -31,7 +31,7 @@ const cn = {
       let queryAddWallet =
         "DELETE FROM alerts WHERE discord_id='" +
         discord +
-        "' AND address='" +
+        "' AND eth_address='" +
         wallet +
         "';";
       //   console.log("deleting: ",queryAddWallet)
@@ -43,7 +43,7 @@ const cn = {
     }
   }
   
- async function AddWallet(discord, wallet) {
+ async function AddWallet(discord, wallet,label) {
     try {
       let user = await getUser(discord);
       if (user.length > 5 && discord != '348242214968754178' && discord != '662117180158246926') {
@@ -64,14 +64,16 @@ let walletLabel = ""
 if ( label ) {walletLabel=label}
 
 // add checking for if they have coverage?
-let totalCoverage = 2 
-    if (totalCoverage > 3) {
+let nftsHeld = await GetNftsHeld(wallet)
+console.log("nfts held",nftsHeld)
+console.log("nfts held length",nftsHeld.length) 
+    if (nftsHeld.length > 0) {
         let queryAddWallet =
           "INSERT INTO alerts(discord_id,eth_address,label) values('" +
           discord +
           "','" +
           wallet +
-          "','" + walletLabel + "');";
+          "','" + label + "');";
         //   console.log("adding: ",queryAddWallet)
         let addWallet = await db.any(queryAddWallet);
         if(walletLabel !== "") {walletLabel = "`"+walletLabel+"`"}
@@ -79,19 +81,19 @@ let totalCoverage = 2
       } else { return "No coverage found for address `" + wallet + "`" }
     } catch (error) {
       console.log(error);
-      return "Could not add wallet friend, sorry!";
+      return "Could not add wallet friend, sorry";
     }
   }
   async function PlayerWallets(discord) {
     try {
       let playerWalletsQuery =
-        "SELECT DISCORD,WALLET,LABEL from addresses WHERE DISCORD ='" + discord + "';";
+        "SELECT discord_id,eth_address,label from alerts WHERE discord_id ='" + discord + "';";
       let playerWalletsReturn = await db.any(playerWalletsQuery);
       //   console.log(playerWalletsReturn)
       let count = 1;
       let walletsString = "";
       playerWalletsReturn.forEach((x) => {
-        walletsString += count + ":   `" + x.wallet + "`"
+        walletsString += count + ":   `" + x.eth_address + "`"
       x.label !== null && x.label !== "" ? walletsString += " `" + x.label + "`" : ""
      walletsString += "\n";
         count += 1;

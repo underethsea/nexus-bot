@@ -2,6 +2,19 @@ const { EmbedBuilder, PermissionsBitField, Client } = require("discord.js");
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { GetCapacityForProduct } = require("../../../nexus.js");
 
+const dotenv = require("dotenv");
+dotenv.config();
+const pgp = require("pg-promise")(/* initialization options */);
+
+const cn = {
+    host: "localhost", // server name or IP address;
+    port: 5432,
+    database: process.env.DATABASE,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+  };
+  const db = pgp(cn);
+
 const formatEighteen = (num) => {
   num = parseFloat(num) / 1e18;
   if (num > 100) {
@@ -55,7 +68,7 @@ module.exports = {
       interaction.options.getString("cover_asset") ?? "No cover_asset provided";
 
     const capacity = await GetCapacityForProduct(product);
-
+    console.log("capacity",capacity)
     if (capacity === null) {
       await interaction.reply("Product not found");
       return;
@@ -94,15 +107,30 @@ module.exports = {
     // const memberID = '799061525582315520'
     const alertMembers = ["662117180158246926", "799061525582315520"];
     try {
-      for (x = 0; x < length.alertMembers; x++) {
+        console.log("alert people length",alertMembers.length)
+      for (x = 0; x < alertMembers.length; x++) {
         let alert = await client.users.send(
           alertMembers[x],
           `@${user.username} ${requestString}`
         );
       }
+      const timestamp = new Date().toISOString(); // Convert current time to ISO 8601 format
+
+      let queryAddRequest =
+          "INSERT INTO requests(date,discord_id,amount,cover_asset,product) values('" +
+          timestamp +
+          "','" +
+          user.username +
+          "','" + amount +
+          "','" + coverAsset +
+          "','" + capacity.name + "');";
+        //   console.log("adding: ",queryAddWallet)
+        let addRequest = await db.any(queryAddRequest);
+
       const messageId = await interaction.reply({ embeds: [embed] });
     } catch (error) {
       console.log(error);
+      interaction.reply("Error requesting product, please report this issue to the team")
     }
   },
 };
