@@ -14,10 +14,10 @@ async function GetNftsHeld(address) {
     const tokenIds = nftsResult.ownedNfts.map((nft) =>
       parseInt(nft.id.tokenId, 16)
     );
-    console.log(nftsResult);
-    console.log(tokenIds);
+    // console.log(nftsResult);
+    // console.log(tokenIds);
     let coverage = await getCoverageForIds(tokenIds);
-console.log(coverage)
+//console.log(coverage)
     return coverage
   } catch (error) {
     console.log(error);
@@ -26,7 +26,7 @@ console.log(coverage)
 
 async function getCoverageForIds(ids) {
   const coverData = await CONTRACTS.COVERVIEWER.getCovers(ids);
-  
+  /*
   console.log(Number(coverData[0].productId));
 
   console.log(Number(coverData[0].segments[0].amount));
@@ -34,10 +34,12 @@ async function getCoverageForIds(ids) {
   console.log(Number(coverData[0].segments[0].start));
   console.log(Number(coverData[0].segments[0].period));
   console.log(Number(coverData[0].segments[0].gracePeriod));
+*/
 let coverInfo =[]  
 for (x=0;x<coverData.length;x++){
 let cover = coverData[x]
-coverInfo.push({productId: cover.productId,amount: cover.segments[0].amount, start: cover.segments[0].start, period: cover.segments[0].period, gracePeriod: cover.segments[0].gracePeriod})
+// coverInfo.push({productId: cover.productId,amount: cover.segments[0].amount, start: cover.segments[0].start, period: cover.segments[0].period, gracePeriod: cover.segments[0].gracePeriod})
+coverInfo.push({nftId:ids[x],productId: cover.productId,amount: cover.segments[0].amount, start: cover.segments[0].start, period: cover.segments[0].period, gracePeriod: cover.segments[0].gracePeriod})
 
 }
 return coverInfo

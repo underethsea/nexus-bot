@@ -12,6 +12,9 @@ module.exports = {
     .setName("members")
     .setDescription("Get current Nexus Mutual member count"),
   run: async (client, interaction) => {
+    if (!interaction.guild) {
+      interaction.reply("Commands not avail in DMs, please use in the public server")
+      return;}
     const members = await GetMembers();
     const embed = new EmbedBuilder()
       .setColor("#ffd200")
