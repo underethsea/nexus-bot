@@ -87,6 +87,7 @@ async function GetCapacityForProduct(product) {
   try {
     idResult = await findProductIdByName(product);
     productId = idResult.id;
+console.log("product id",productId)
   } catch (error) {
     console.log(error);
     return null;
@@ -99,7 +100,7 @@ async function GetCapacityForProduct(product) {
     const capacityForProduct = capacity.find(
       (product) => product.productId === productId
     );
-    // console.log(capacityForProduct);
+    console.log(capacityForProduct);
     capacityForProduct.name = idResult.name;
 
     return capacityForProduct;

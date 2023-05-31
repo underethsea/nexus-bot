@@ -74,8 +74,8 @@ module.exports = {
       return;
     }
     const noCapacity =
-      capacity.capacity[0].amount === "0" &&
-      capacity.capacity[1].amount === "0";
+      capacity.availableCapacity[0].amount === "0" &&
+      capacity.availableCapacity[1].amount === "0";
     console.log("no capacity? ", noCapacity);
     let embed = new EmbedBuilder().setColor("#ffd200");
     if (noCapacity) {
@@ -84,12 +84,12 @@ module.exports = {
       embed.setDescription(`Current Capacity for ${capacity.name}`).addFields(
         {
           name: "ETH",
-          value: formatEighteen(capacity.capacity[0].amount),
+          value: formatEighteen(capacity.availableCapacity[0].amount),
           inline: true,
         },
         {
           name: "DAI",
-          value: formatEighteen(capacity.capacity[1].amount),
+          value: formatEighteen(capacity.availableCapacity[1].amount),
           inline: true,
         }
         // { name: 'NXM', value: formatEighteen(capacity.capacity[2].amount),inline: true  },

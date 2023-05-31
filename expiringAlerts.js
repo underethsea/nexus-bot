@@ -194,25 +194,33 @@ async function needsAlert(discordId, address, nftId, alert) {
     }
 }
 
-    async function updateAlerted(discordId, address, nftId, alert) {
-        try{
-        let alertType = "";
-        if (alert === "expired") {
-            alertType = "alertexpired";
-        } else {
-            alertType = "alert14day";
-        }
+async function updateAlerted(discordId, address, nftId, alert) {
+    try {
+      let alertType = "";
+      if (alert === "expired") {
+        alertType = "alertexpired";
+      } else {
+        alertType = "alert14day";
+      }
+      let checkQuery = `SELECT * FROM alerted WHERE discord_id = '${discordId}' AND eth_address = '${address}' AND nft_id = '${nftId}';`;
+      let existingRow = await DB.any(checkQuery);
+      if (existingRow.length === 0) {
         let insertQuery = `INSERT INTO alerted (discord_id, eth_address, nft_id, ${alertType}) VALUES ('${discordId}', '${address}', '${nftId}', true);`;
         await DB.none(insertQuery);
+      } else {
+        let updateQuery = `UPDATE alerted SET ${alertType} = true WHERE discord_id = '${discordId}' AND eth_address = '${address}' AND nft_id = '${nftId}';`;
+        await DB.none(updateQuery);
+      }
+    } catch (e) {
+      console.log(e);
     }
-catch(e){console.log(e)}
-
-    }
+  }
+  
 function isWithin14Days(coverageStart, coveragePeriod) {
   const now = Math.floor(Date.now() / 1000); // Convert current time to seconds
   const fourteenDaysInSeconds = 14 * 24 * 60 * 60; // 14 days in seconds
   const endingTime = coverageStart + coveragePeriod;
-  // Check if the difference between the ending time and current time is within 7 days
+  // Check if the difference between the ending time and current time is within 14 days
   return endingTime >= now && endingTime <= now + fourteenDaysInSeconds;
 }
 function isExpired(coverageStart, coveragePeriod) {
